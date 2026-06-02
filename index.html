@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+<title>پنل مدیریت کلاس‌ها</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<script defer src="app.js"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-logo">🎓</div>
+      <div>
+        <div class="brand-title">پنل مدیریت کلاس‌ها</div>
+        <div class="brand-sub">مدیریت هوشمند کلاس‌ها و کاربران</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="live-dot"><i></i> <span class="lbl">متصل به سرور</span></span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="panel" id="create-class-box">
+        <div class="panel-head">
+          <div class="icon">➕</div>
+          <div>
+            <h2>ایجاد کلاس جدید</h2>
+            <p>اطلاعات کلاس را وارد کنید</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <form id="createClassForm">
+            <div class="field">
+              <label>سطح کلاس</label>
+              <select id="level" required>
+                <option value="">انتخاب سطح...</option>
+                <option value="beginner">مقدماتی</option>
+                <option value="intermediate">متوسط</option>
+                <option value="advanced">پیشرفته</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>روز هفته</label>
+              <select id="week_day" required>
+                <option value="">انتخاب روز...</option>
+                <option value="saturday">شنبه</option>
+                <option value="sunday">یکشنبه</option>
+                <option value="monday">دوشنبه</option>
+                <option value="tuesday">سه‌شنبه</option>
+                <option value="wednesday">چهارشنبه</option>
+                <option value="thursday">پنجشنبه</option>
+                <option value="friday">جمعه</option>
+              </select>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label>ساعت شروع</label>
+                <select id="start_time"></select>
+              </div>
+              <div class="field">
+                <label>ساعت پایان</label>
+                <select id="end_time"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>تاریخ شروع</label>
+              <div class="grid-3">
+                <input id="start_day" type="number" min="1" max="31" placeholder="روز" />
+                <select id="start_month">
+                  <option value="1">فروردین</option>
+                  <option value="2">اردیبهشت</option>
+                  <option value="3">خرداد</option>
+                  <option value="4">تیر</option>
+                  <option value="5">مرداد</option>
+                  <option value="6">شهریور</option>
+                  <option value="7">مهر</option>
+                  <option value="8">آبان</option>
+                  <option value="9">آذر</option>
+                  <option value="10">دی</option>
+                  <option value="11">بهمن</option>
+                  <option value="12">اسفند</option>
+                </select>
+                <input id="start_year" type="number" value="1405" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label>ظرفیت کل</label>
+                <input id="capacity_total" type="number" value="20" min="1" required />
+              </div>
+              <div class="field">
+                <label>تعداد تکرار</label>
+                <input id="repeat_count" type="number" value="1" min="1" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+              <span>✅ ایجاد کلاس</span>
+            </button>
+          </form>
+          <div id="createClassMsg"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="panel section collapsible collapsed" id="classesPanel">
+        <div class="panel-head" onclick="togglePanel('classesPanel')">
+          <div class="icon">📚</div>
+          <div>
+            <h2>فهرست کلاس‌ها</h2>
+            <p>همه‌ی کلاس‌های فعال</p>
+          </div>
+          <span class="chev">⌄</span>
+        </div>
+        <div class="panel-collapse">
+          <div class="panel-body">
+            <div id="classes"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="statsPanel">
+        <div class="panel-head">
+          <div class="icon">📊</div>
+          <div>
+            <h2>نمای کلی</h2>
+            <p>آمار لحظه‌ای کلاس‌ها</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="stats-grid" id="statsGrid">
+            <div class="state" style="grid-column:1/-1"><div class="spinner"></div>در حال محاسبه...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel section collapsible collapsed" id="usersPanel">
+        <div class="panel-head" onclick="togglePanel('usersPanel')">
+          <div class="icon">👥</div>
+          <div>
+            <h2>فهرست کاربران کلاس</h2>
+            <p>روی «کاربران» در هر کلاس بزنید</p>
+          </div>
+          <span class="chev">⌄</span>
+        </div>
+        <div class="panel-collapse">
+          <div class="panel-body">
+            <div id="users">
+              <div class="state"><span class="emoji">👆</span>برای مشاهده، یک کلاس را انتخاب کنید</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toasts"></div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="m-icon">🗑️</div>
+      <h3>حذف کلاس</h3>
+      <p>آیا از حذف این کلاس مطمئن هستید؟ این عمل قابل بازگشت نیست.</p>
+      <div class="modal-actions">
+        <button class="m-cancel" id="modalCancel">انصراف</button>
+        <button class="m-confirm" id="modalConfirm">حذف کلاس</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
