@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>پنل مدیریت کلاس‌ها</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0b1020;
+    --bg-2: #0e1530;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-2: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --text: #e8ecf6;
+    --muted: #8b95ad;
+    --primary: #6d7cff;
+    --primary-2: #9b6dff;
+    --accent: #22d3ee;
+    --success: #34d399;
+    --danger: #fb7185;
+    --warning: #fbbf24;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    --trans: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Vazirmatn", system-ui, sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(900px circle at 85% -10%, rgba(109, 124, 255, 0.18), transparent 45%),
+      radial-gradient(800px circle at 5% 10%, rgba(34, 211, 238, 0.12), transparent 40%),
+      radial-gradient(700px circle at 50% 120%, rgba(155, 109, 255, 0.14), transparent 45%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.7;
+    padding: 24px;
+  }
+
+  ::selection { background: var(--primary); color: #fff; }
+
+  /* ===== Topbar ===== */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 0 auto 24px;
+    padding: 16px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(18px);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-logo {
+    width: 46px; height: 46px; border-radius: 13px;
+    display: grid; place-items: center; font-size: 22px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow: 0 8px 24px rgba(109, 124, 255, 0.45);
+  }
+  .brand-title { font-size: 18px; font-weight: 700; }
+  .brand-sub { font-size: 12px; color: var(--muted); }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+  .live-dot {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--muted);
+    padding: 8px 14px; border: 1px solid var(--border);
+    border-radius: 999px; background: var(--surface-2);
+  }
+  .live-dot i {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success); box-shadow: 0 0 0 0 var(--success);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(18px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+  }
+  .panel-head .icon {
+    width: 38px; height: 38px; border-radius: 11px;
+    display: grid; place-items: center; font-size: 18px;
+    background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .panel-head h2 { font-size: 16px; font-weight: 700; }
+  .panel-head p { font-size: 12px; color: var(--muted); }
+  .panel-body { padding: 22px; }
+
+  .sidebar { position: sticky; top: 24px; }
+
+  /* ===== Form ===== */
+  .field { margin-bottom: 16px; }
+  .field > label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--muted); margin-bottom: 7px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px; }
+
+  input, select {
+    width: 100%;
+    font-family: inherit; font-size: 14px;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 13px;
+    transition: var(--trans);
+    outline: none;
+  }
+  input::placeholder { color: var(--muted); }
+  select { cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b95ad' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: left 13px center; padding-left: 34px;
+  }
+  option { background: var(--bg-2); color: var(--text); }
+  input:hover, select:hover { border-color: var(--border-strong); }
+  input:focus, select:focus {
+    border-color: var(--primary);
+    background: rgba(109, 124, 255, 0.06);
+    box-shadow: 0 0 0 4px rgba(109, 124, 255, 0.15);
+  }
+
+  .btn {
+    width: 100%;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    color: #fff; cursor: pointer;
+    border: none; border-radius: var(--radius-sm);
+    padding: 13px 18px; margin-top: 6px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow: 0 10px 30px rgba(109, 124, 255, 0.4);
+    transition: var(--trans);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(109, 124, 255, 0.55); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ===== Tables ===== */
+  .section + .section { margin-top: 24px; }
+  .table-wrap { overflow-x: auto; border-radius: var(--radius-sm); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th {
+    text-align: right; font-weight: 600; color: var(--muted);
+    padding: 12px 14px; white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid var(--border); }
+  tbody tr { transition: var(--trans); }
+  tbody tr:hover { background: var(--surface-2); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 600;
+    padding: 4px 11px; border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .badge.beginner { color: var(--success); background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.3); }
+  .badge.intermediate { color: var(--warning); background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.3); }
+  .badge.advanced { color: var(--primary); background: rgba(109,124,255,0.14); border-color: rgba(109,124,255,0.35); }
+  .badge.neutral { color: var(--muted); background: var(--surface-2); border-color: var(--border); }
+
+  .cap-bar { display: flex; align-items: center; gap: 8px; }
+  .cap-track { flex: 1; height: 6px; min-width: 60px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .cap-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--primary)); transition: width .4s ease; }
+  .cap-num { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  .row-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    font-family: inherit; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; border-radius: 8px; padding: 6px 12px;
+    border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text); transition: var(--trans);
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .icon-btn:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+  .icon-btn.view:hover { color: var(--accent); border-color: var(--accent); }
+  .icon-btn.delete:hover { color: var(--danger); border-color: var(--danger); background: rgba(251,113,133,0.08); }
+
+  /* ===== States ===== */
+  .state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .state .emoji { font-size: 34px; display: block; margin-bottom: 10px; opacity: .8; }
+  .spinner {
+    width: 30px; height: 30px; margin: 0 auto 12px;
+    border: 3px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== Toast ===== */
+  #toasts { position: fixed; top: 24px; left: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+  .toast {
+    display: flex; align-items: center; gap: 11px;
+    min-width: 260px; padding: 14px 16px;
+    background: var(--bg-2); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow);
+    font-size: 14px; font-weight: 600;
+    animation: toastIn 0.35s cubic-bezier(0.2,0.9,0.3,1.3);
+  }
+  .toast.out { animation: toastOut 0.3s forwards; }
+  .toast.success { border-right: 3px solid var(--success); }
+  .toast.error { border-right: 3px solid var(--danger); }
+  .toast.info { border-right: 3px solid var(--accent); }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateX(-30px); } }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 9998;
+    background: rgba(5, 8, 18, 0.7); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; animation: fade 0.2s; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    width: 100%; max-width: 380px; text-align: center;
+    background: var(--bg-2); border: 1px solid var(--border-strong);
+    border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow);
+    animation: modalIn 0.3s cubic-bezier(0.2,0.9,0.3,1.3);
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  .modal .m-icon { font-size: 40px; margin-bottom: 12px; }
+  .modal h3 { font-size: 17px; margin-bottom: 6px; }
+  .modal p { font-size: 13.5px; color: var(--muted); margin-bottom: 22px; }
+  .modal-actions { display: flex; gap: 12px; }
+  .modal-actions button { flex: 1; padding: 11px; border-radius: var(--radius-sm); font-family: inherit; font-weight: 700; cursor: pointer; font-size: 14px; transition: var(--trans); }
+  .m-cancel { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); }
+  .m-cancel:hover { border-color: var(--border-strong); }
+  .m-confirm { background: linear-gradient(135deg, var(--danger), #f43f5e); border: none; color: #fff; }
+  .m-confirm:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(251,113,133,0.4); }
+
+  @media (max-width: 980px) {
+    body { padding: 14px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-logo">🎓</div>
+      <div>
+        <div class="brand-title">پنل مدیریت کلاس‌ها</div>
+        <div class="brand-sub">مدیریت هوشمند کلاس‌ها و کاربران</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="live-dot"><i></i> متصل به سرور</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="panel" id="create-class-box">
+        <div class="panel-head">
+          <div class="icon">➕</div>
+          <div>
+            <h2>ایجاد کلاس جدید</h2>
+            <p>اطلاعات کلاس را وارد کنید</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <form id="createClassForm">
+            <div class="field">
+              <label>سطح کلاس</label>
+              <select id="level" required>
+                <option value="">انتخاب سطح...</option>
+                <option value="beginner">مقدماتی</option>
+                <option value="intermediate">متوسط</option>
+                <option value="advanced">پیشرفته</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>روز هفته</label>
+              <select id="week_day" required>
+                <option value="">انتخاب روز...</option>
+                <option value="saturday">شنبه</option>
+                <option value="sunday">یکشنبه</option>
+                <option value="monday">دوشنبه</option>
+                <option value="tuesday">سه‌شنبه</option>
+                <option value="wednesday">چهارشنبه</option>
+                <option value="thursday">پنجشنبه</option>
+                <option value="friday">جمعه</option>
+              </select>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label>ساعت شروع</label>
+                <select id="start_time"></select>
+              </div>
+              <div class="field">
+                <label>ساعت پایان</label>
+                <select id="end_time"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>تاریخ شروع</label>
+              <div class="grid-3">
+                <input id="start_day" type="number" min="1" max="31" placeholder="روز" />
+                <select id="start_month">
+                  <option value="1">فروردین</option>
+                  <option value="2">اردیبهشت</option>
+                  <option value="3">خرداد</option>
+                  <option value="4">تیر</option>
+                  <option value="5">مرداد</option>
+                  <option value="6">شهریور</option>
+                  <option value="7">مهر</option>
+                  <option value="8">آبان</option>
+                  <option value="9">آذر</option>
+                  <option value="10">دی</option>
+                  <option value="11">بهمن</option>
+                  <option value="12">اسفند</option>
+                </select>
+                <input id="start_year" type="number" value="1405" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label>ظرفیت کل</label>
+                <input id="capacity_total" type="number" value="20" min="1" required />
+              </div>
+              <div class="field">
+                <label>تعداد تکرار</label>
+                <input id="repeat_count" type="number" value="1" min="1" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+              <span>✅ ایجاد کلاس</span>
+            </button>
+          </form>
+          <div id="createClassMsg"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="panel section">
+        <div class="panel-head">
+          <div class="icon">📚</div>
+          <div>
+            <h2>فهرست کلاس‌ها</h2>
+            <p>همه‌ی کلاس‌های فعال</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="classes"></div>
+        </div>
+      </div>
+
+      <div class="panel section">
+        <div class="panel-head">
+          <div class="icon">👥</div>
+          <div>
+            <h2>فهرست کاربران کلاس</h2>
+            <p>روی «کاربران» در هر کلاس بزنید</p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="users">
+            <div class="state"><span class="emoji">👆</span>برای مشاهده، یک کلاس را انتخاب کنید</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toasts"></div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="m-icon">🗑️</div>
+      <h3>حذف کلاس</h3>
+      <p>آیا از حذف این کلاس مطمئن هستید؟ این عمل قابل بازگشت نیست.</p>
+      <div class="modal-actions">
+        <button class="m-cancel" id="modalCancel">انصراف</button>
+        <button class="m-confirm" id="modalConfirm">حذف کلاس</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const apiUrl = "https://nextalk-n8n.ir/webhook-test/miniapp-classes";
+
+  const levelMap = { beginner: "مقدماتی", intermediate: "متوسط", advanced: "پیشرفته" };
+  const dayMap = {
+    saturday: "شنبه", sunday: "یکشنبه", monday: "دوشنبه", tuesday: "سه‌شنبه",
+    wednesday: "چهارشنبه", thursday: "پنجشنبه", friday: "جمعه"
+  };
+
+  /* ---------- Toast ---------- */
+  function toast(msg, type = "info") {
+    const wrap = document.getElementById("toasts");
+    const el = document.createElement("div");
+    el.className = "toast " + type;
+    const icon = type === "success" ? "✅" : type === "error" ? "⚠️" : "ℹ️";
+    el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    wrap.appendChild(el);
+    setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 300); }, 3200);
+  }
+
+  /* ---------- Confirm modal ---------- */
+  let pendingDeleteId = null;
+  const overlay = document.getElementById("modalOverlay");
+  document.getElementById("modalCancel").onclick = () => closeModal();
+  overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+  document.getElementById("modalConfirm").onclick = () => {
+    if (pendingDeleteId != null) doDeleteClass(pendingDeleteId);
+    closeModal();
+  };
+  function closeModal() { overlay.classList.remove("open"); pendingDeleteId = null; }
+
+  function loadingState(target, text) {
+    document.getElementById(target).innerHTML =
+      `<div class="state"><div class="spinner"></div>${text}</div>`;
+  }
+
+  /* ---------- Classes ---------- */
+  async function listClasses() {
+    loadingState("classes", "در حال بارگذاری کلاس‌ها...");
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "listClasses" })
+      });
+      const data = await res.json();
+      renderClasses(data);
+    } catch (err) {
+      document.getElementById("classes").innerHTML =
+        `<div class="state"><span class="emoji">⚠️</span>خطا در دریافت اطلاعات</div>`;
+    }
+  }
+
+  function renderClasses(classes) {
+    if (!Array.isArray(classes) || classes.length === 0) {
+      document.getElementById("classes").innerHTML =
+        `<div class="state"><span class="emoji">📭</span>هنوز کلاسی ثبت نشده است</div>`;
+      return;
+    }
+    let rows = classes.map(c => {
+      const total = Number(c.capacity_total) || 0;
+      const used = Number(c.capacity_used) || 0;
+      const pct = total ? Math.min(100, Math.round(used / total * 100)) : 0;
+      const lvl = (c.level || "").toLowerCase();
+      const badge = levelMap[lvl] ? `<span class="badge ${lvl}">${levelMap[lvl]}</span>` : `<span class="badge neutral">${c.level || '-'}</span>`;
+      return `
+        <tr>
+          <td>#${c.id}</td>
+          <td>${dayMap[c.week_days] || c.week_days || '-'}</td>
+          <td>${c.date_shamsi || '-'}</td>
+          <td>${badge}</td>
+          <td>${c.start_time || '-'}</td>
+          <td>${c.end_time || '-'}</td>
+          <td>
+            <div class="cap-bar">
+              <div class="cap-track"><div class="cap-fill" style="width:${pct}%"></div></div>
+              <span class="cap-num">${used}/${total}</span>
+            </div>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn view" onclick="getUsers(${c.id})">👥 کاربران</button>
+              <button class="icon-btn delete" onclick="deleteClass(${c.id})">🗑️ حذف</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    document.getElementById("classes").innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>شناسه</th><th>روز هفته</th><th>تاریخ شروع</th><th>سطح</th><th>شروع</th>
+          <th>پایان</th><th>ظرفیت</th><th>اقدامات</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+  }
+
+
+  /* ---------- Users ---------- */
+  async function getUsers(classId) {
+    loadingState("users", "در حال بارگذاری کاربران...");
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "getUsers", class_id: classId })
+      });
+      const data = await res.json();
+      renderUsers(data);
+    } catch (err) {
+      document.getElementById("users").innerHTML =
+        `<div class="state"><span class="emoji">⚠️</span>خطا در دریافت کاربران</div>`;
+    }
+  }
+
+  function renderUsers(users) {
+    if (!Array.isArray(users) || users.length === 0) {
+      document.getElementById("users").innerHTML =
+        `<div class="state"><span class="emoji">🙈</span>هیچ کاربری ثبت نشده است.</div>`;
+      return;
+    }
+        let rows = users.map(u => `
+      <tr>
+        <td>#${u.id ?? '-'}</td>
+        <td>${u.name ?? '-'}</td>
+        <td>${u.platform_id ?? '-'}</td>
+        <td>${u.phone ?? '-'}</td>
+        <td>${u.course_type ?? '-'}</td>
+        <td>${levelMap[(u.level||'').toLowerCase()] || u.level || '-'}</td>
+        <td>${u.class_id ?? '-'}</td>
+      </tr>`).join("");
+
+    document.getElementById("users").innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>شناسه</th><th>نام</th><th>پلتفرم</th><th>شماره تماس</th>
+          <th>کورس</th><th>سطح</th><th>کد کلاس</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+  }
+
+  /* ---------- Delete ---------- */
+  function deleteClass(classId) {
+    pendingDeleteId = classId;
+    overlay.classList.add("open");
+  }
+  async function doDeleteClass(classId) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "deleteClass", class_id: classId })
+      });
+      if (res.ok) { toast("کلاس با موفقیت حذف شد", "success"); listClasses(); }
+      else { toast("خطا در حذف کلاس", "error"); }
+    } catch (err) { toast("خطا در حذف کلاس", "error"); }
+  }
+
+  /* ---------- Time options ---------- */
+  function buildTimeOptions(selectId) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '<option value="">--:--</option>';
+    for (let h = 0; h <= 24; h++) {
+      const hh = String(h).padStart(2, "0");
+      const opt = document.createElement("option");
+      opt.value = `${hh}:00`;
+      opt.textContent = `${hh}:00`;
+      sel.appendChild(opt);
+    }
+  }
+
+  /* ---------- Init ---------- */
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM loaded");
+    listClasses();
+    buildTimeOptions("start_time");
+    buildTimeOptions("end_time");
+
+    document.getElementById("createClassForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<span>در حال ارسال...</span>';
+
+      const payload = {
+        action: "createClass",
+        level: document.getElementById("level").value,
+        week_day: document.getElementById("week_day").value,
+        start_time: document.getElementById("start_time").value,
+        end_time: document.getElementById("end_time").value,
+        capacity_total: Number(document.getElementById("capacity_total").value),
+        repeat_count: Number(document.getElementById("repeat_count").value),
+        start_date: {
+          day: Number(document.getElementById("start_day").value),
+          month: Number(document.getElementById("start_month").value),
+          year: Number(document.getElementById("start_year").value)
+        }
+      };
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        console.log("response status:", res.status);
+        if (res.ok) {
+          toast("کلاس با موفقیت ایجاد شد", "success");
+          e.target.reset();
+          document.getElementById("start_year").value = "1405";
+          listClasses();
+        } else {
+          toast("خطا در ایجاد کلاس", "error");
+        }
+      } catch (err) {
+        toast("خطا در ارتباط با سرور", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>✅ ایجاد کلاس</span>';
+      }
+    });
+  });
+</script>
+</body>
+</html>
