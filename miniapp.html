@@ -6,6 +6,7 @@
 <title>پنل مدیریت کلاس‌ها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
 <style>
   :root {
     --bg: #0b1020;
@@ -607,20 +608,36 @@
       btn.disabled = true;
       btn.innerHTML = '<span>در حال ارسال...</span>';
 
-      const payload = {
-        action: "createClass",
-        level: document.getElementById("level").value,
-        week_day: document.getElementById("week_day").value,
-        start_time: document.getElementById("start_time").value,
-        end_time: document.getElementById("end_time").value,
-        capacity_total: Number(document.getElementById("capacity_total").value),
-        repeat_count: Number(document.getElementById("repeat_count").value),
-        start_date: {
-          day: Number(document.getElementById("start_day").value),
-          month: Number(document.getElementById("start_month").value),
-          year: Number(document.getElementById("start_year").value)
-        }
-      };
+      // ... داخل ایونت لیسنر سابمیت فرم ...
+
+// ۱. گرفتن مقادیر تاریخ از ورودی‌ها
+const s_day = Number(document.getElementById("start_day").value);
+const s_month = Number(document.getElementById("start_month").value);
+const s_year = Number(document.getElementById("start_year").value);
+
+// ۲. تبدیل تاریخ شمسی به میلادی با استفاده از کتابخانه jalaali
+// این کتابخانه خروجی را به صورت {gy, gm, gd} می‌دهد
+const gDate = jalaali.toGregorian(s_year, s_month, s_day);
+
+// ۳. فرمت کردن به صورت YYYY-MM-DD برای دیتابیس
+const formattedGregorian = `${gDate.gy}-${String(gDate.gm).padStart(2, '0')}-${String(gDate.gd).padStart(2, '0')}`;
+
+const payload = {
+  action: "createClass",
+  level: document.getElementById("level").value,
+  week_day: document.getElementById("week_day").value,
+  start_time: document.getElementById("start_time").value,
+  end_time: document.getElementById("end_time").value,
+  capacity_total: Number(document.getElementById("capacity_total").value),
+  repeat_count: Number(document.getElementById("repeat_count").value),
+  date_shamsi: `${s_year}/${String(s_month).padStart(2, '0')}/${String(s_day).padStart(2, '0')}`,
+  date_gregorian: formattedGregorian, // <--- فیلد جدید و حیاتی
+  start_date: {
+    day: s_day,
+    month: s_month,
+    year: s_year
+  }
+};
 
       try {
         const res = await fetch(apiUrl, {
