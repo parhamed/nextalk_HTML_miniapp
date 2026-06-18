@@ -423,16 +423,42 @@
   </div>
 
 <script>
-// اگر کلمه test در آدرس مرورگر بود، از webhook-test استفاده می‌کند، در غیر این صورت از webhook اصلی
-const isTest = window.location.href.includes('test'); 
-const apiBase = isTest ? "webhook-test" : "webhook";
-const apiUrl = `https://nextalk-n8n.ir/${apiBase}/miniapp-api`;
+  // تشخیص خودکار محیط تست یا پابلیک
+  // اگر در URL عبارت 'test' باشد یا در لوکال‌هاست باشی، تست استفاده می‌شود
+  const isTestMode = window.location.href.includes('test') || window.location.hostname === 'localhost'; 
+  const apiBase = isTestMode ? "webhook-test" : "webhook";
+  
+  // آدرس دقیق مطابق با تنظیمات n8n شما
+  const apiUrl = `https://nextalk-n8n.ir/${apiBase}/miniapp-api`;
+
+  // برای دیباگ: این خط را در کنسول مینی‌اپ چک کن
+  console.log("🚀 Target API URL:", apiUrl);
 
   const levelMap = { beginner: "مقدماتی", intermediate: "متوسط", advanced: "پیشرفته" };
   const dayMap = {
     saturday: "شنبه", sunday: "یکشنبه", monday: "دوشنبه", tuesday: "سه‌شنبه",
     wednesday: "چهارشنبه", thursday: "پنجشنبه", friday: "جمعه"
   };
+
+  // ادامه کد (بخش Fetch) را حتماً با این ساختار هدر چک کن:
+  async function createClass(payload) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        mode: "cors", // صراحتاً درخواست CORS بده
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      return res;
+    } catch (err) {
+      console.error("❌ Fetch Error:", err);
+    }
+  }
+</script>
+
 
   /* ---------- Toast ---------- */
   function toast(msg, type = "info") {
