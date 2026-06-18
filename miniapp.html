@@ -426,7 +426,7 @@
 // اگر کلمه test در آدرس مرورگر بود، از webhook-test استفاده می‌کند، در غیر این صورت از webhook اصلی
 const isTest = window.location.href.includes('test'); 
 const apiBase = isTest ? "webhook-test" : "webhook";
-const apiUrl = `https://nextalk-n8n.ir/${apiBase}/miniapp-classes`;
+const apiUrl = `https://nextalk-n8n.ir/${apiBase}/miniapp-api`;
 
   const levelMap = { beginner: "مقدماتی", intermediate: "متوسط", advanced: "پیشرفته" };
   const dayMap = {
