@@ -423,22 +423,18 @@
   </div>
 
 <script>
-  // تشخیص خودکار محیط تست یا پابلیک
-  // اگر در URL عبارت 'test' باشد یا در لوکال‌هاست باشی، تست استفاده می‌شود
-  const isTestMode = window.location.href.includes('test') || window.location.hostname === 'localhost'; 
-  const apiBase = isTestMode ? "webhook-test" : "webhook";
-  
-  // آدرس دقیق مطابق با تنظیمات n8n شما
-  const apiUrl = `https://nextalk-n8n.ir/${apiBase}/miniapp-api`;
+  // آدرس ثابت و نهایی برای ارتباط با n8n (حالت پابلیک)
+  const apiUrl = "https://nextalk-n8n.ir/webhook/miniapp-api";
 
-  // برای دیباگ: این خط را در کنسول مینی‌اپ چک کن
-  console.log("🚀 Target API URL:", apiUrl);
+  // برای اطمینان در کنسول هم چاپ می‌کنیم
+  console.log("🚀 Connectivity Check - Target URL:", apiUrl);
 
   const levelMap = { beginner: "مقدماتی", intermediate: "متوسط", advanced: "پیشرفته" };
   const dayMap = {
     saturday: "شنبه", sunday: "یکشنبه", monday: "دوشنبه", tuesday: "سه‌شنبه",
     wednesday: "چهارشنبه", thursday: "پنجشنبه", friday: "جمعه"
   };
+</script>
 
   // ادامه کد (بخش Fetch) را حتماً با این ساختار هدر چک کن:
   async function createClass(payload) {
